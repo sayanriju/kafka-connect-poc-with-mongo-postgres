@@ -1,0 +1,58 @@
+version: '3.7'
+services:
+  kafka:
+    container_name: Kafka
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+      - "29092:29092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,LOCALHOST://localhost:19092,LAN://192.168.1.15:29092
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,LOCALHOST://0.0.0.0:19092,LAN://0.0.0.0:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,LOCALHOST:PLAINTEXT,LAN:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: 1      
+
+  zookeeper:
+    container_name: Zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka-connect:
+    container_name: KafkaConnect
+    build: 
+      context: .
+      dockerfile: KafkaConnect-jdbc.Dockerfile
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: kafka-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: kafka-connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: kafka-connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: kafka-connect-status
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka
+    volumes:
+      - ./KafkaConnect-configs/worker.properties:/etc/kafka-connect/worker.properties
+      - ./KafkaConnect-configs/postgres-sink.properties:/etc/kafka-connect/postgres-sink.properties
+      - ./KafkaConnect-configs/mongodb-sink.properties:/etc/kafka-connect/mongodb-sink.properties
+
+    command: bash -c "kafka-topics --create --topic kafka-connect-configs --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && kafka-topics --create --topic kafka-connect-offsets --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && kafka-topics --create --topic kafka-connect-status --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && connect-standalone /etc/kafka-connect/worker.properties /etc/kafka-connect/postgres-sink.properties /etc/kafka-connect/mongodb-sink.properties"
+
+    working_dir: /etc/kafka-connect
