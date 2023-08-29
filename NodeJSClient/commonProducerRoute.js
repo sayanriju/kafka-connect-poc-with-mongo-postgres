@@ -8,7 +8,8 @@ const port = 3000; // Change to the desired port number
 
 const kafka = new Kafka({
   clientId: 'my-producer',
-  brokers: ['192.168.1.15:29092'], // Replace with your Kafka broker(s) information
+  brokers: [process.env.KAFKA_LISTENER],
+  // brokers: ['192.168.0.187:29092'], // Replace with your Kafka broker(s) information
 });
 
 const producer = kafka.producer();
@@ -17,7 +18,7 @@ app.use(express.json());
 
 app.post('/produce', async (req, res) => {
   const { message } = req.body;
-  // console.log("message..........==> ", message)
+  console.log("message..........==> ", message)
 
   if (message === undefined) {
     return res.status(400).json({ success: false, error: 'Message is required' });

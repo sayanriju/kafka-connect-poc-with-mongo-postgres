@@ -3,7 +3,8 @@ const cuid = require("cuid")
 
 const kafka = new Kafka({
   clientId: 'my-consumer',
-  brokers: ['localhost:19092'], // Replace with your Kafka broker(s) information
+  brokers: [process.env.KAFKA_LISTENER]
+  // brokers: ['localhost:19092'], // Replace with your Kafka broker(s) information
 });
 
 const consumer = kafka.consumer({ groupId: cuid() });
@@ -16,7 +17,7 @@ async function sendMsgToMPostgresTopic(givenMsg) {
   const producer = kafka.producer();
 
   const postgresmain = async () => {
-    console.log("givenMsg ==> ", givenMsg)
+    // console.log("givenMsg ==> ", givenMsg)
     await producer.connect();
 
     const topic = 'my_topic_postgres'; // Replace with the topic you want to produce to

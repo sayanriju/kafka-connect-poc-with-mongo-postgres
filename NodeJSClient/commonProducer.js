@@ -4,7 +4,7 @@ process.env.KAFKAJS_NO_PARTITIONER_WARNING = 1
 
 const kafka = new Kafka({
   clientId: 'my-producer',
-  brokers: ['192.168.1.15:29092'], // Replace with your Kafka broker(s) information
+  brokers: ['192.168.0.187:29092'], // Replace with your Kafka broker(s) information
 });
 
 const producer = kafka.producer();
