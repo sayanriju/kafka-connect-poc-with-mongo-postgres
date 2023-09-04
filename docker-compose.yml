@@ -1,27 +1,5 @@
 version: '3.7'
 services:
-
-# service for interceptor
-  interceptor: 
-    container_name: KafkaInterceptorNodeS
-    build:
-      # context: ./NodeJSClient
-      dockerfile: interceptor.Dockerfile
-    environment:
-      KAFKA_LISTENER: kafka:9092
-    depends_on: 
-      - kafka
-
-# service for commonproducer
-  testingapi:
-    container_name: KafkaTestingAPI
-    build:
-      dockerfile: testingapi.Dockerfile
-    environment:
-      KAFKA_LISTENER: kafka:9092
-    depends_on: 
-      - kafka
-
 # service for kafka
   kafka:
     container_name: Kafka
@@ -51,12 +29,33 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
+# service for interceptor
+  interceptor: 
+    container_name: KafkaInterceptorNodeS
+    build:
+      # context: ./NodeJSClient
+      dockerfile: interceptor.Dockerfile
+    environment:
+      KAFKA_LISTENER: kafka:9092
+    depends_on: 
+      - kafka
+      
+# service for commonproducer
+  testingapi:
+    container_name: KafkaTestingAPI
+    build:
+      dockerfile: testingapi.Dockerfile
+    environment:
+      KAFKA_LISTENER: kafka:9092
+    depends_on: 
+      - kafka
+
 # service for kafka-connect
   kafka-connect:
     container_name: KafkaConnect
     build: 
       context: .
-      dockerfile: KafkaConnect-jdbc.Dockerfile
+      dockerfile: KafkaConnect.Dockerfile
     environment:
       CONNECT_BOOTSTRAP_SERVERS: kafka:9092
       CONNECT_REST_PORT: 8083

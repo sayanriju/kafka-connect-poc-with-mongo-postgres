@@ -2,7 +2,7 @@
 # Dockerfile
 FROM node:18-alpine
 
-WORKDIR /usr/src/app 
+# WORKDIR /usr/src/app 
 
 # Copy package.json and package-lock.json
 COPY NodeJSClient/package*.json ./

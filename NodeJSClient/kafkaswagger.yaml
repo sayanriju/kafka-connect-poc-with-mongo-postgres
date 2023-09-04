@@ -1,0 +1,70 @@
+openapi: 3.0.0
+info:
+  title: Kafka Connect API
+  description: |
+  
+      Kafka Connect is a tool in the Apache Kafka ecosystem used for streaming data integration. It simplifies the process of moving data between Kafka topics and external systems (databases, file systems, cloud services, etc.). 
+
+
+  version: 0.1.9
+
+paths:
+  /produce:
+    post:
+      tags:
+        - Producer
+      summary: Send a message
+      description: |
+                This endpoint allows you to send a message to both the PostgreSQL and MongoDB databases simultaneously.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: object
+                  properties:
+                    field1:
+                      type: string
+                      example: Hi
+                    field2:
+                      type: string
+                      example: Arpita
+                    field3:
+                      type: string
+                      example: Dey
+                  required:
+                    - field1
+                    - field2
+                    - field3
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+                    example: true
+                  message:
+                    type: string
+                    example: Message sent successfully
+
+  /swagger-docs:
+    get:
+      tags:
+        - Producer
+      summary: Render Swagger Documentation in the Browser
+      description: |
+        This endpoint allows you to view the Swagger documentation for the Kafka Producer API in your web browser. 
+
+        To view the Swagger documentation, simply access this endpoint in your browser by navigating to `http://your-server-url/swaggerdoc`. You can then use the Swagger UI to interact with the API, understand its functionality, and even try out different API requests.
+
+      responses:
+        '200':
+          description: Swagger documentation rendered successfully

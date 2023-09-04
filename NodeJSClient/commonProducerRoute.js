@@ -1,6 +1,11 @@
 const express = require('express');
 const { Kafka } = require('kafkajs');
 const cuid = require('cuid');
+const path = require('path');
+const fs = require('fs');
+const YAML = require('yamljs'); 
+const swaggerUi = require('swagger-ui-express');
+
 process.env.KAFKAJS_NO_PARTITIONER_WARNING = 1;
 
 const app = express();
@@ -9,7 +14,6 @@ const port = 3000; // Change to the desired port number
 const kafka = new Kafka({
   clientId: 'my-producer',
   brokers: [process.env.KAFKA_LISTENER],
-  // brokers: ['192.168.0.187:29092'], // Replace with your Kafka broker(s) information
 });
 
 const producer = kafka.producer();
@@ -40,6 +44,31 @@ app.post('/produce', async (req, res) => {
     await producer.disconnect();
   }
 });
+
+
+// Serve Swagger documentation
+const filePath = path.join(__dirname, 'kafkaswagger.yaml');
+
+
+if (fs.existsSync(filePath)) {
+  const swaggerDocument = YAML.load(filePath);
+  // Continue with your code
+} else {
+  console.error(`Swagger YAML file not found at: ${filePath}`);
+}
+
+// Load the Swagger YAML file
+const swaggerDocument = YAML.load(path.join(__dirname, 'kafkaswagger.yaml'));
+
+// Serve Swagger UI on a specific route
+app.use('/swaggerdoc', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+// console.log('__dirname:', __dirname);
+// console.log('Full path:', path.join(__dirname, 'kafkaswagger.yaml'));
+
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
