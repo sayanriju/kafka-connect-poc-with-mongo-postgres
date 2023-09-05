@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "npm run start:router && npm run start:interceptor",
-    "start:interceptor": "node interceptor.js",
-    "start:router": "node commonProducerRoute.js"
+    "start": "nodemon commonProducerRoute.js"
   },
   "keywords": [],
   "author": "",

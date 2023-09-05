@@ -55,16 +55,4 @@ paths:
                     type: string
                     example: Message sent successfully
 
-  /swagger-docs:
-    get:
-      tags:
-        - Producer
-      summary: Render Swagger Documentation in the Browser
-      description: |
-        This endpoint allows you to view the Swagger documentation for the Kafka Producer API in your web browser. 
-
-        To view the Swagger documentation, simply access this endpoint in your browser by navigating to `http://your-server-url/swaggerdoc`. You can then use the Swagger UI to interact with the API, understand its functionality, and even try out different API requests.
-
-      responses:
-        '200':
-          description: Swagger documentation rendered successfully
+ 

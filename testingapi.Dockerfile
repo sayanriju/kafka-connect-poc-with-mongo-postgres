@@ -13,8 +13,16 @@ RUN npm install
 
 # Copy the rest of the application code
 # COPY . .
+COPY NodeJSClient/ ./
 
-COPY NodeJSClient/commonProducerRoute.js ./
+# COPY NodeJSClient/commonProducerRoute.js ./
 
 # Adjust this based on your application's entry point
-CMD [ "node", "commonProducerRoute.js" ] 
+# CMD [ "node", "commonProducerRoute.js" ] 
+
+
+# # Install nodemon globally
+# RUN npm install -g nodemon
+
+# Adjust this based on your application's entry point
+CMD [ "node", "commonProducerRoute.js" ]

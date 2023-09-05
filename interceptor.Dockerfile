@@ -16,5 +16,9 @@ RUN npm install
 
   COPY NodeJSClient/interceptor.js ./
 
+
+# Install nodemon globally
+RUN npm install -g nodemon
+
 # Adjust this based on your application's entry point
-CMD [ "node", "interceptor.js" ] 
+CMD [ "nodemon", "interceptor.js" ] 
