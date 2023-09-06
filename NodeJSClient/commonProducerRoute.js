@@ -11,9 +11,11 @@ const port = 3000; // Change to the desired port number
 const { swaggerServe, swaggerSetup } = require("./swagger-ui-config")
 app.use("/api-docs", swaggerServe, swaggerSetup)
 
+// kafka code for produce message
 const kafka = new Kafka({
   clientId: 'my-producer',
   brokers: [process.env.KAFKA_LISTENER],
+  // brokers: ['192.168.48.2:9092']
 });
 
 const producer = kafka.producer();
