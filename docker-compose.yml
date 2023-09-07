@@ -3,13 +3,15 @@ services:
 # service for kafka
   kafka:
     container_name: Kafka
+    networks:
+      - mynetwork
     image: confluentinc/cp-kafka:latest
     ports:
       - "9092:9092"
       - "19092:19092"
       - "29092:29092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,LOCALHOST://localhost:19092,LAN://192.168.0.111:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,LOCALHOST://localhost:19092,LAN://192.168.1.9:29092
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,LOCALHOST://0.0.0.0:19092,LAN://0.0.0.0:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,LOCALHOST:PLAINTEXT,LAN:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
@@ -22,6 +24,8 @@ services:
 # service for zookeeper
   zookeeper:
     container_name: Zookeeper
+    networks:
+    - mynetwork
     image: confluentinc/cp-zookeeper:latest
     ports:
       - "2181:2181"
@@ -35,12 +39,10 @@ services:
       image: mongo:latest
       networks:
         mynetwork:
-          ipv4_address: 172.30.0.2 
+          ipv4_address: 172.30.0.102 
       ports:
         - "27018:27017"
-      environment:
-        MONGO_INITDB_ROOT_USERNAME: mongotest
-        MONGO_INITDB_ROOT_PASSWORD: mongo123
+      
 
 # service postgresSQL
   postgres:
@@ -48,7 +50,7 @@ services:
     image: postgres:latest
     networks:
       mynetwork:
-        ipv4_address: 172.30.0.3
+        ipv4_address: 172.30.0.103
     ports:
       - "5433:5432"
     environment:
@@ -59,6 +61,8 @@ services:
 # service for interceptor
   interceptor: 
     container_name: KafkaInterceptorNodeS
+    networks:
+      - mynetwork    
     build:
       # context: ./NodeJSClient
       dockerfile: interceptor.Dockerfile
@@ -74,15 +78,17 @@ services:
       dockerfile: testingapi.Dockerfile
     environment:
       KAFKA_LISTENER: kafka:9092
-    # networks:
-    #   mynetwork:
-    #     ipv4_address: 172.30.0.4
+    networks:
+      mynetwork:
+        ipv4_address: 172.30.0.99
     depends_on: 
       - kafka
 
 # service for kafka-connect
   kafka-connect:
     container_name: KafkaConnect
+    networks:
+      - mynetwork
     build: 
       context: .
       dockerfile: KafkaConnect.Dockerfile
