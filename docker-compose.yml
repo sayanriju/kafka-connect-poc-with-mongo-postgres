@@ -1,15 +1,41 @@
 version: '3.7'
 services:
+# service for mongoDB sink
+  mongodb:
+      container_name: MongoDB
+      image: mongo:latest
+      networks:
+        mynetwork:
+          ipv4_address: 172.30.0.102 
+      # ports:
+      #   - "27018:27017"
+
+
+# service for postgresSQL sink
+  postgres:
+    container_name: PostgreSQL
+    image: postgres:latest
+    networks:
+      mynetwork:
+        ipv4_address: 172.30.0.103
+    # ports:
+    #   - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kafka1    
+
 # service for kafka
   kafka:
     container_name: Kafka
     networks:
       - mynetwork
+      # - externalnetwork
     image: confluentinc/cp-kafka:latest
-    ports:
-      - "9092:9092"
-      - "19092:19092"
-      - "29092:29092"
+    # ports:
+    #   - "9092:9092"
+    #   - "19092:19092"
+    #   - "29092:29092"
     environment:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,LOCALHOST://localhost:19092,LAN://192.168.1.9:29092
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,LOCALHOST://0.0.0.0:19092,LAN://0.0.0.0:29092
@@ -26,69 +52,20 @@ services:
     container_name: Zookeeper
     networks:
     - mynetwork
+    # - externalnetwork
     image: confluentinc/cp-zookeeper:latest
-    ports:
-      - "2181:2181"
+    # ports:
+    #   - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-
-  # service for mongoDB
-  mongodb:
-      container_name: MongoDB
-      image: mongo:latest
-      networks:
-        mynetwork:
-          ipv4_address: 172.30.0.102 
-      ports:
-        - "27018:27017"
-      
-
-# service postgresSQL
-  postgres:
-    container_name: PostgreSQL
-    image: postgres:latest
-    networks:
-      mynetwork:
-        ipv4_address: 172.30.0.103
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: kafka1
-
-# service for interceptor
-  interceptor: 
-    container_name: KafkaInterceptorNodeS
-    networks:
-      - mynetwork    
-    build:
-      # context: ./NodeJSClient
-      dockerfile: interceptor.Dockerfile
-    environment:
-      KAFKA_LISTENER: kafka:9092
-    depends_on: 
-      - kafka
-      
-# service for commonproducer
-  testingapi:
-    container_name: KafkaTestingAPI
-    build:
-      dockerfile: testingapi.Dockerfile
-    environment:
-      KAFKA_LISTENER: kafka:9092
-    networks:
-      mynetwork:
-        ipv4_address: 172.30.0.99
-    depends_on: 
-      - kafka
 
 # service for kafka-connect
   kafka-connect:
     container_name: KafkaConnect
     networks:
       - mynetwork
+      # - externalnetwork
     build: 
       context: .
       dockerfile: KafkaConnect.Dockerfile
@@ -104,8 +81,8 @@ services:
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
-    ports:
-      - "8083:8083"
+    # ports:
+    #   - "8083:8083"
     depends_on:
       - kafka
     volumes:
@@ -116,6 +93,38 @@ services:
     command: bash -c "kafka-topics --create --topic kafka-connect-configs --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && kafka-topics --create --topic kafka-connect-offsets --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && kafka-topics --create --topic kafka-connect-status --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && connect-standalone /etc/kafka-connect/worker.properties /etc/kafka-connect/postgres-sink.properties /etc/kafka-connect/mongodb-sink.properties"
 
     working_dir: /etc/kafka-connect
+      
+
+
+# service for interceptor (always running consumer -> transformer -> producer)
+  interceptor: 
+    container_name: KafkaInterceptorNodeS
+    networks:
+      - mynetwork  
+      # - externalnetwork
+        
+    build:
+      # context: ./NodeJSClient
+      dockerfile: interceptor.Dockerfile
+    environment:
+      KAFKA_LISTENER: kafka:9092
+    depends_on: 
+      - kafka
+      
+# service for producer testing api
+  testingapi:
+    container_name: KafkaTestingAPI
+    build:
+      dockerfile: testingapi.Dockerfile
+    environment:
+      KAFKA_LISTENER: kafka:9092
+    networks:
+      mynetwork:
+        ipv4_address: 172.30.0.99
+    ports:
+      - "3000:3000"
+    depends_on: 
+      - kafka
 
 
 
@@ -126,3 +135,5 @@ networks:
       driver: default
       config:
         - subnet: 172.30.0.0/16  # Specify a suitable subnet for your static IPs
+  # externalnetwork:
+  #   external: true

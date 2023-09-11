@@ -9,7 +9,7 @@ const port = 3000; // Change to the desired port number
 
 // swagger setup
 const { swaggerServe, swaggerSetup } = require("./swagger-ui-config")
-app.use("/api-docs", swaggerServe, swaggerSetup)
+app.use("/docs", swaggerServe, swaggerSetup)
 
 // kafka code for produce message
 const kafka = new Kafka({
