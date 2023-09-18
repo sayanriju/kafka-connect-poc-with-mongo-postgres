@@ -17,6 +17,8 @@
 
     `Password: postgres`
 
+    `Table name: foo`
+
 ## Architecture Diagram
 
 ![Image](kafkaconnect.png)
