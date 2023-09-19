@@ -30,7 +30,6 @@ services:
     container_name: Kafka
     networks:
       - mynetwork
-      # - externalnetwork
     image: confluentinc/cp-kafka:latest
     # ports:
     #   - "9092:9092"
@@ -52,7 +51,6 @@ services:
     container_name: Zookeeper
     networks:
     - mynetwork
-    # - externalnetwork
     image: confluentinc/cp-zookeeper:latest
     # ports:
     #   - "2181:2181"
@@ -65,7 +63,6 @@ services:
     container_name: KafkaConnect
     networks:
       - mynetwork
-      # - externalnetwork
     build: 
       context: .
       dockerfile: KafkaConnect.Dockerfile
@@ -98,20 +95,18 @@ services:
 
 # service for interceptor (always running consumer -> transformer -> producer)
   interceptor: 
-    # container_name: KafkaInterceptorNodeS
+    container_name: KafkaInterceptorNodeS
     networks:
       - mynetwork  
-      # - externalnetwork
-        
     build:
-      # context: ./NodeJSClient
       dockerfile: interceptor.Dockerfile
     environment:
       KAFKA_LISTENER: kafka:9092
     depends_on: 
       - kafka
-    deploy:
-      replicas: 3
+  # If you want to run multiple instances of a container with Docker Compose, uncomment the lines below and comment out 'container_name: KafkaInterceptorNodeS' above.
+    # deploy:
+    #   replicas: 3
     
 # service for producer testing api
   testingapi:
@@ -137,5 +132,4 @@ networks:
       driver: default
       config:
         - subnet: 172.30.0.0/16  # Specify a suitable subnet for your static IPs
-  # externalnetwork:
-  #   external: true
+  
