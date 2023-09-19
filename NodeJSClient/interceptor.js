@@ -7,7 +7,7 @@ const kafka = new Kafka({
   // brokers: ['localhost:19092'], // Replace with your Kafka broker(s) information
 });
 
-const consumer = kafka.consumer({ groupId: cuid() });
+const consumer = kafka.consumer({ groupId: "interceptor-consumer-group" });
 
 
 // send message to postgres..............................

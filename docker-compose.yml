@@ -2,7 +2,7 @@ version: '3.7'
 services:
 # service for mongoDB sink
   mongodb:
-      container_name: MongoDB
+      container_name: MongoDBSink
       image: mongo:latest
       networks:
         mynetwork:
@@ -13,7 +13,7 @@ services:
 
 # service for postgresSQL sink
   postgres:
-    container_name: PostgreSQL
+    container_name: PostgreSQLSink
     image: postgres:latest
     networks:
       mynetwork:
@@ -98,7 +98,7 @@ services:
 
 # service for interceptor (always running consumer -> transformer -> producer)
   interceptor: 
-    container_name: KafkaInterceptorNodeS
+    # container_name: KafkaInterceptorNodeS
     networks:
       - mynetwork  
       # - externalnetwork
@@ -110,7 +110,9 @@ services:
       KAFKA_LISTENER: kafka:9092
     depends_on: 
       - kafka
-      
+    deploy:
+      replicas: 3
+    
 # service for producer testing api
   testingapi:
     container_name: KafkaTestingAPI
